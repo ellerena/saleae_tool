@@ -1,0 +1,13 @@
+{
+  "name": "IIC Pattern Search and Color",
+  "apiVersion": "1.0.0",
+  "author": "Eddie Llerena",
+  "version": "0.0.1",
+  "description": "Given a list of patterns + color (e.g. Start + Write to 0xff, red), searches for them sequentially, whenever a pattern from the list is found, the color is applied to the all the next bytes until another pattern from the list is found",
+  "extensions": {
+    "IIC Pattern Search and Color": {
+      "type": "HighLevelAnalyzer",
+      "entryPoint": "HighLevelAnalyzer.Hla"
+    }
+  }
+}
