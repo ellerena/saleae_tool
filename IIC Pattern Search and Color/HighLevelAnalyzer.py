@@ -14,42 +14,50 @@ class Hla(HighLevelAnalyzer):
     #rejest = StringSetting()
     show_hide = ChoicesSetting(choices=('Show', 'Hide'))
     search_dev = NumberSetting(min_value=0, max_value=255)
+    word_width = NumberSetting(min_value=1, max_value=4)
 
     result_types = {'newdev': {'format': '{{data.dev}}'}}
 
     # Initialize HLA
     def __init__(self):
-        global show, search_dev_i, show_dev
-        show = 0
-        show_dev = self.show_hide
-        search_dev_i = int(self.search_dev)
-        print("Slave:", hex(search_dev_i), " show/hide:", self.show_hide)
+        self.show = 0
+        self.show_dev = self.show_hide
+        self.search_dev_i = int(self.search_dev)
+        self.byteCount = 0
+        self.word_value = 0
+        print("Slave:", hex(self.search_dev_i), " show/hide:", self.show_hide)
 
     # Process each input frame, optionally return a single or list of `AnalyzerFrame`
     def decode(self, frame: AnalyzerFrame):
 
-        # globals to persist across frames
-        global dev, show, search_dev_i, show_dev
-
         if frame.type == 'address':
-            devi = int.from_bytes(frame.data['address'], "big")
+            self.byteCount = int(self.word_width)
+            dev_i2c_address = int.from_bytes(frame.data['address'], "big")
 
-            if search_dev_i == devi:
-                show = 1 if 'Show' == show_dev else 0
+            if self.search_dev_i == dev_i2c_address:
+                self.show = 1 if 'Show' == self.show_dev else 0
             else:
-                show = 0 if 'Show' == show_dev else 1
+                self.show = 0 if 'Show' == self.show_dev else 1
 
-            if show == 1:
-                dev = frame.data['address'].hex()
+            if self.show == 1:
+                self.dev = frame.data['address'].hex()
                 wr = "r" if frame.data['read'] else "w"
-                # print("\n" + dev + " " + wr, end = " ")
                 print("\n" + wr, end = " ")
-            else: # show == 0
+            else: # self.show == 0
                 return
 
-        elif frame.type == 'data' and show ==1:
-            print("{:02x}".format(int.from_bytes(frame.data['data'], "big")), end = " ")
-            dev = ''
+        elif frame.type == 'data' and self.show ==1:
+            c = int.from_bytes(frame.data['data'], "big")
+
+            if self.byteCount > 0:
+                self.word_value = (self.word_value << 8) + c
+                self.byteCount -=1
+
+            if self.byteCount == 0:
+                print('{:0{w}x}'.format(self.word_value, w = 2*int(self.word_width)), end = " ")
+                self.dev = ''
+                self.byteCount = int(self.word_width)
+                self.word_value = 0
 
         # elif frame.type == 'stop':
 
@@ -57,5 +65,5 @@ class Hla(HighLevelAnalyzer):
             return
 
         return AnalyzerFrame('newdev', frame.start_time, frame.end_time, {
-            'dev': dev
+            'dev': self.dev
         })
