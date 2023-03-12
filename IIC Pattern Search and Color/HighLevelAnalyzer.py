@@ -25,7 +25,9 @@ class Hla(HighLevelAnalyzer):
         self.search_dev_i = int(self.search_dev)
         self.byteCount = 0
         self.word_value = 0
+        self.txt = ""
         print("Slave:", hex(self.search_dev_i), " show/hide:", self.show_hide)
+        self.file = open("/Users/ellerena/projects/git/saleae_tool/IIC Pattern Search and Color/console_nosvc.txt", "w")
 
     # Process each input frame, optionally return a single or list of `AnalyzerFrame`
     def decode(self, frame: AnalyzerFrame):
@@ -40,9 +42,11 @@ class Hla(HighLevelAnalyzer):
                 self.show = 0 if 'Show' == self.show_dev else 1
 
             if self.show == 1:
+                self.file.write(self.txt + "\n")
+                print(self.txt)
                 self.dev = frame.data['address'].hex()
                 wr = "r" if frame.data['read'] else "w"
-                print("\n" + wr, end = " ")
+                self.txt = wr + " "
             else: # self.show == 0
                 return
 
@@ -54,7 +58,7 @@ class Hla(HighLevelAnalyzer):
                 self.byteCount -=1
 
             if self.byteCount == 0:
-                print('{:0{w}x}'.format(self.word_value, w = 2*int(self.word_width)), end = " ")
+                self.txt = self.txt + str ('{:0{w}x}'.format(self.word_value, w = 2*int(self.word_width))) + " "
                 self.dev = ''
                 self.byteCount = int(self.word_width)
                 self.word_value = 0
@@ -67,3 +71,7 @@ class Hla(HighLevelAnalyzer):
         return AnalyzerFrame('newdev', frame.start_time, frame.end_time, {
             'dev': self.dev
         })
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        self.file.write(self.txt + "\n")
+        print(self.txt)
