@@ -1,0 +1,13 @@
+{
+  "name": "PDM bits to words",
+  "apiVersion": "1.0.0",
+  "author": "Eddie Llerena",
+  "version": "0.0.1",
+  "description": "Extracts the bits from a designed channel of a PDM stream",
+  "extensions": {
+    "PDM bits to words": {
+      "type": "HighLevelAnalyzer",
+      "entryPoint": "HighLevelAnalyzer.Hla"
+    }
+  }
+}

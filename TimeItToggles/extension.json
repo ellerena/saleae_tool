@@ -1,0 +1,30 @@
+{
+  "name": "TimeItToggles",
+  "apiVersion": "1.0.0",
+  "author": "Eddie Llerena",
+  "version": "0.0.1",
+  "description": "For every state change, it prints its state and time",
+  "extensions": {
+    "TimeItToggles": {
+      "type": "DigitalMeasurement",
+      "entryPoint": "DigitalMeasurement.MyDigitalMeasurer",
+      "metrics": {
+        "hwvadTrigg": {
+          "name": "hwvad",
+          "notation": "hwvad<sub>trigger</sub>",
+          "units": "s"
+        },
+        "prerollEmpty": {
+          "name": "pr_empty",
+          "notation": "preroll<sub>empty</sub>",
+          "units": "s"
+        },
+        "wwDetect": {
+          "name": "ww_ms",
+          "notation": "ww<sub>detect</sub>",
+          "units": "s"
+        }
+      }
+    }
+  }
+}
